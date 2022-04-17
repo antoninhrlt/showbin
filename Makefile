@@ -31,3 +31,23 @@ $(BIN) : $(OBJ)
 
 $(OUT_DIR)/%.o : src/%.c
 	$(CC) $(FLAGS) -c -o $@ $<
+
+# Tests runner
+
+TESTS = $(shell find tests/ -name '*.c')
+TESTS_FAKE_OBJ = $(patsubst tests/%.c, tests/%.o, $(TESTS))
+
+define run_test
+	@ echo "--- test :$(1) ---"
+	- $(1)
+	@ echo "--- returned : '$?' ---\n"
+endef
+
+tests: build _tests $(TESTS_FAKE_OBJ)
+
+_tests:
+	$(call run_test, $(BIN))
+	$(call run_test, $(BIN) --help)
+
+tests/%.o : tests/%.c
+	$(call run_test, $(BIN) $<)
