@@ -50,3 +50,6 @@ _tests:
 tests/%.test : tests/%.c
 	gcc -o $@ $<
 	$(call run_test, $(BIN) $@ -o tests/$@.asm)
+
+mem: build
+	valgrind $(BIN)
