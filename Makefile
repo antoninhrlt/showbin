@@ -35,19 +35,18 @@ $(OUT_DIR)/%.o : src/%.c
 # Tests runner
 
 TESTS = $(shell find tests/ -name '*.c')
-TESTS_FAKE_OBJ = $(patsubst tests/%.c, tests/%.o, $(TESTS))
+TESTS_BIN = $(patsubst tests/%.c, tests/%.test, $(TESTS))
 
 define run_test
 	@ echo "--- test :$(1) ---"
 	- $(1)
-	@ echo "--- returned : '$?' ---\n"
+	@ echo "--- end of test --\n"
 endef
 
-tests: build _tests $(TESTS_FAKE_OBJ)
+tests: build $(TESTS_BIN)
 
 _tests:
-	$(call run_test, $(BIN))
-	$(call run_test, $(BIN) --help)
 
-tests/%.o : tests/%.c
-	$(call run_test, $(BIN) $<)
+tests/%.test : tests/%.c
+	gcc -o $@ $<
+	$(call run_test, $(BIN) $@ -o tests/$@.asm)
