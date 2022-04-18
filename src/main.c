@@ -2,55 +2,89 @@
 // Under the MIT License
 // Copyright (c) 2022 Antonin Hérault
 
-#include <argp.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "log.h"
 #include "showbin.h"
 
-struct Arguments {
-    char* args[1]; // only the source file should be not an option 
-    char* input_file;
-    char* output_file; // if `== NULL`, no output file will be generated 
-};
-
-static struct argp_option args_options[] = {
-    {
-        "output", 'o', 0, 0, 
-        "Set the output file path, if not set, no output file will be generated"
-    }
-};
-
-static error_t args_parse_opt(int key, char* arg, struct argp_state* state) {
-    struct Arguments* args = state->input;
-    switch (key) {
-        case ARGP_KEY_ARG:
-            // Too many argument/s found
-            if (state->arg_num >= 1) {
-                argp_usage(state);
-            }
-            args->args[state->arg_num] = arg;
-            break;
-        case ARGP_KEY_END:
-            // Not enough argument/s found
-            if (state->arg_num < 1) {
-                argp_usage(state);
-            }
-            break;
-        case 'o':
-            args->output_file = arg;
-            break;
-        default:
-            return ARGP_ERR_UNKNOWN;
-    }
-    return 0;
+void help(const char* self) {
+    printf(
+        "Usage : %s <source file> [options...]\n"
+        "Options :\n"
+            "\t-h : Show this help page\n"
+            "\t-o : Set the output file path\n",
+        self
+    );
+    exit(0);
 }
 
-static char args_doc[] = "source file";
+/**
+ * Check if the command line arguments are valid and update some values
+ * 
+ * @param source_file Update the source file value got from the arguments
+ * @param output_file Can be updated if option "-o" found
+*/
+void check_args(int argc, char** argv, char** source_file, char** output_file) {
+    bool to_ignore = false;
 
-static struct argp argp = {args_options, args_parse_opt, args_doc};
+    for (int i = 1; i < argc; i++) {
+        if (to_ignore) { // the previous flag was an option
+            continue;
+        }
+
+        // Define the source file
+        if (argv[i][0] != '-') {
+            if (*source_file != NULL) {
+                log_warning("Source file already defined as '%s'\n", *source_file);
+                continue;
+            }
+
+            *source_file = (char*) malloc(strlen(argv[i]) * sizeof(char) + 1);
+            strcpy(*source_file, argv[i]);
+            continue;
+        }
+
+        // Check for the an option
+        switch (argv[i][1]) {
+            case 'h':
+                help(argv[0]);
+                break;
+            case 'o':
+                if (i == argc - 1) {
+                    log_error(
+                        "Option '-o' should be followed by a value : path for the output\n"
+                    );
+                    exit(1);
+                }
+                *output_file = (char*) malloc(strlen(argv[i + 1]) * sizeof(char) + 1);
+                strcpy(*output_file, argv[i + 1]);
+                to_ignore = true;
+                break;
+            default:
+                log_warning(
+                    "Invalid option '%s' found, the option flag and the value next to it will be ignored\n", 
+                    argv[i]
+                );
+                to_ignore = true;
+                break;
+        } 
+    }
+}
 
 int main(int argc, char** argv) {
-    struct Arguments args = {};
-    argp_parse(&argp, argc, argv, 0, 0, &args);
+    char* source_file = NULL; // the binary file to disassemble
+    // If the output file is still null, there will be no output generation
+    char* output_file = NULL; 
+
+    check_args(argc, argv, &source_file, &output_file);
+
+    log_info("File to disassemble : '%s'\n", source_file);
+    if (output_file != NULL) {
+        log_info("Output file : '%s'\n", output_file);
+    }
 
     return 0;
 }
