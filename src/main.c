@@ -60,7 +60,9 @@ void check_args(int argc, char** argv, char** source_file, char** output_file) {
                     );
                     exit(1);
                 }
-                *output_file = (char*) malloc(strlen(argv[i + 1]) * sizeof(char) + 1);
+                *output_file = (char*) malloc(
+                    strlen(argv[i + 1]) * sizeof(char) + 1
+                );
                 strcpy(*output_file, argv[i + 1]);
                 to_ignore = true;
                 break;
@@ -72,6 +74,11 @@ void check_args(int argc, char** argv, char** source_file, char** output_file) {
                 to_ignore = true;
                 break;
         } 
+    }
+
+    if (*source_file == NULL) {
+        log_error("No source input file\n");
+        exit(1);
     }
 }
 
