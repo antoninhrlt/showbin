@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "runner.h"
 #include "showbin.h"
 
 void help(const char* self) {
@@ -86,5 +87,5 @@ int main(int argc, char** argv) {
         log_info("Output file : '%s'\n", output_file);
     }
 
-    return 0;
+    return run(source_file, output_file);
 }
