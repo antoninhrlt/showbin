@@ -10,8 +10,8 @@
 #include "runner.h"
 
 void disassemble(
-    char* source_buffer, 
     const int MAX_BIN_SIZE,
+    char source_buffer[MAX_BIN_SIZE], 
     char* output_file
 ) {
     const bool is_output = output_file != NULL;
@@ -36,25 +36,36 @@ int run(char* source_file, char* output_file) {
     fclose(source_stream);
 
     // Print the binary file content as hexadecimal
-    char* fmt_source_buffer = malloc(MAX_BIN_SIZE * sizeof(char) + 1);
+    char* fmt_buffer = malloc(MAX_BIN_SIZE * 3 * sizeof(char) + 1);
+    strcpy(fmt_buffer, ""); // avoid crazy appending of "@@" at begin
 
+    // Using a position variable for `fmt_buffer` avoid `strlen()` calls
+    unsigned int fmt_buffer_pos = 0;
+    
     int j = 0;
     for (int i = 0; i < MAX_BIN_SIZE - 1; i++) {
         if (j == 8) {
-            strcat(fmt_source_buffer, "\t");
+            strcat(fmt_buffer, "\t");
+            fmt_buffer_pos += 1;
         } else if (j == 16) {
-            strcat(fmt_source_buffer, "\n");
+            strcat(fmt_buffer, "\n");
+            fmt_buffer_pos += 1;
             j = 0;
         }
-
-        sprintf(fmt_source_buffer, "%x\t", source_buffer[i]);
+        
+        // The value returned by `sprintf()` is the appended string length 
+        fmt_buffer_pos += sprintf(
+            fmt_buffer + fmt_buffer_pos, 
+            "%x\t", 
+            source_buffer[i]
+        );
         j += 1;
     }
 
-    log_info("Source file content as hexadecimal : \n%s\n", fmt_source_buffer);
-    free(fmt_source_buffer);
+    log_info("Source file content as hexadecimal : \n%s\n", fmt_buffer);
+    free(fmt_buffer);
 
-    disassemble(source_buffer, MAX_BIN_SIZE, output_file);
+    //disassemble(MAX_BIN_SIZE, source_buffer, output_file);
     free(source_file);
     free(output_file);
 
