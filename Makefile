@@ -6,7 +6,7 @@
 CC = gcc
 DEBUG_FLAGS = -W -Wall -Wextra -g -pedantic -DDEBUG
 RELEASE_FLAGS = -O2
-FLAGS = -I inc/
+FLAGS = -I inc/ -funsigned-char
 
 # Variables
 OUT_DIR = build/out
@@ -52,4 +52,4 @@ tests/%.test : tests/%.c
 	$(call run_test, $(BIN) $@ -o tests/$@.asm)
 
 mem: build
-	valgrind $(BIN)
+	valgrind $(BIN) tests/hello_world.test -o tests/hell_world.test.asm
