@@ -12,7 +12,7 @@ char* fmt_hexstring(
     const int BIN_BUFFER_SIZE, 
     char binary_content[BIN_BUFFER_SIZE]
 ) {
-    char* dest_buffer = malloc(BIN_BUFFER_SIZE * 3 * sizeof(char) + 1);
+    char* dest_buffer = malloc(BIN_BUFFER_SIZE * 4 * sizeof(char) + 1);
     strcpy(dest_buffer, ""); // avoid crazy appending of "@@" at begin
 
     // Using a position variable for `fmt_buffer` to avoid `strlen()` calls
@@ -29,12 +29,21 @@ char* fmt_hexstring(
             j = 0;
         }
 
+        int saved_buffer_pos = buffer_pos;
+
         // The value returned by `sprintf()` is the appended string length 
         buffer_pos += sprintf(
             dest_buffer + buffer_pos, 
-            "%x\t", 
+            "%x ", 
             binary_content[i]
         );
+
+        // Prettier print
+        if (saved_buffer_pos != buffer_pos - 3) {
+            strcat(dest_buffer, " ");
+            buffer_pos += 1;
+        }
+
         j += 1;
     }
 
