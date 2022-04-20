@@ -11,9 +11,18 @@
 #include "runner.h"
 #include "showbin.h"
 
+// For `access()` function usage on Windows platforms 
+#ifdef WIN32
+    #include <io.h>
+    #define F_OK    0
+    #define access  _access
+#else
+    #include <unistd.h>
+#endif
+
 void help(const char* self) {
     printf(
-        "Usage : %s <source file> [options...]\n"
+        "Usage : %s <binary file> [options...]\n"
         "Options :\n"
             "\t-h : Show this help page\n"
             "\t-o : Set the output file path\n",
@@ -25,10 +34,10 @@ void help(const char* self) {
 /**
  * Check if the command line arguments are valid and update some values
  * 
- * @param source_file Update the source file value got from the arguments
+ * @param binary_file Update the binary file value retrieved from the arguments
  * @param output_file Can be updated if option "-o" found
 */
-void check_args(int argc, char** argv, char** source_file, char** output_file) {
+void check_args(int argc, char** argv, char** binary_file, char** output_file) {
     bool to_ignore = false;
 
     for (int i = 1; i < argc; i++) {
@@ -36,15 +45,18 @@ void check_args(int argc, char** argv, char** source_file, char** output_file) {
             continue;
         }
 
-        // Define the source file
+        // Define the binary file
         if (argv[i][0] != '-') {
-            if (*source_file != NULL) {
-                log_warning("Source file already defined as '%s'\n", *source_file);
+            if (*binary_file != NULL) {
+                log_warning(
+                    "Binary file already defined as '%s'\n", 
+                    *binary_file
+                );
                 continue;
             }
 
-            *source_file = (char*) malloc(strlen(argv[i]) * sizeof(char) + 1);
-            strcpy(*source_file, argv[i]);
+            *binary_file = (char*) malloc(strlen(argv[i]) * sizeof(char) + 1);
+            strcpy(*binary_file, argv[i]);
             continue;
         }
 
@@ -76,23 +88,31 @@ void check_args(int argc, char** argv, char** source_file, char** output_file) {
         } 
     }
 
-    if (*source_file == NULL) {
-        log_error("No source input file\n");
+    if (*binary_file == NULL) {
+        log_error("No binary file given\n");
         exit(1);
     }
 }
 
 int main(int argc, char** argv) {
-    char* source_file = NULL; // the binary file to disassemble
+    char* binary_file = NULL; // the binary file to disassemble
     // If the output file is still null, there will be no output generation
     char* output_file = NULL; 
 
-    check_args(argc, argv, &source_file, &output_file);
+    check_args(argc, argv, &binary_file, &output_file);
 
-    log_info("File to disassemble : '%s'\n", source_file);
+    if (access(binary_file, F_OK) != 0) {
+        log_error(
+            "The given binary file was not found : '%s'\n", 
+            binary_file
+        );
+        exit(1);
+    }
+
+    log_info("Binary file to disassemble : '%s'\n", binary_file);
     if (output_file != NULL) {
         log_info("Output file : '%s'\n", output_file);
     }
 
-    return run(source_file, output_file);
+    return run(binary_file, output_file);
 }

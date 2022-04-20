@@ -6,27 +6,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hex.h"
+#include "fmt.h"
 #include "log.h"
 #include "runner.h"
 
-int run(char* source_file, char* output_file) {
-    FILE* source_stream = fopen(source_file, "rb");
-    free(source_file);
+int run(char* binary_file, char* output_file) {
+    FILE* stream = fopen(binary_file, "rb");
+    free(binary_file);
 
     // Get the file's size
-    fseek(source_stream, 0, SEEK_END);
-    const int SOURCE_BUFFER_SIZE = ftell(source_stream);
-    fseek(source_stream, 0, SEEK_SET);
+    fseek(stream, 0, SEEK_END);
+    const int BIN_BUFFER_SIZE = ftell(stream);
+    fseek(stream, 0, SEEK_SET);
 
     // Read the binary file
-    unsigned char source_buffer[SOURCE_BUFFER_SIZE];
-    fread(source_buffer, sizeof(source_buffer), 1, source_stream);
-    fclose(source_stream);
+    unsigned char binary_content[BIN_BUFFER_SIZE];
+    fread(binary_content, sizeof(binary_content), 1, stream);
+    fclose(stream);
 
-    // Print binary source file content as hexadecimal characters
-    char* fmt_buffer = fmt_hexstring(SOURCE_BUFFER_SIZE, source_buffer);
-    log_info("Source file content as hexadecimal : \n%s\n", fmt_buffer);
+    // Print binary binary file content as hexadecimal characters
+    char* fmt_buffer = fmt_hexstring(BIN_BUFFER_SIZE, binary_content);
+    log_info("Binary file content as hexadecimal : \n%s\n", fmt_buffer);
     
     free(fmt_buffer);
     free(output_file);

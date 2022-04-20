@@ -8,11 +8,11 @@
 /**
  * Format the binary file content buffer (array of hexadecimal characters)
  * 
- * @param source_buffer The binary file content buffer
+ * @param binary_content The binary file content buffer
 */
 char* fmt_hexstring(
-    const int SOURCE_BUFFER_SIZE, 
-    char source_buffer[SOURCE_BUFFER_SIZE]
+    const int BIN_BUFFER_SIZE, 
+    char binary_content[BIN_BUFFER_SIZE]
 );
 
 #endif // SHOWBIN_FMT_H

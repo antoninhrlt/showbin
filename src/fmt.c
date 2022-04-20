@@ -9,17 +9,17 @@
 #include <stdlib.h>
 
 char* fmt_hexstring(
-    const int SOURCE_BUFFER_SIZE, 
-    char source_buffer[SOURCE_BUFFER_SIZE]
+    const int BIN_BUFFER_SIZE, 
+    char binary_content[BIN_BUFFER_SIZE]
 ) {
-    char* dest_buffer = malloc(SOURCE_BUFFER_SIZE * 3 * sizeof(char) + 1);
+    char* dest_buffer = malloc(BIN_BUFFER_SIZE * 3 * sizeof(char) + 1);
     strcpy(dest_buffer, ""); // avoid crazy appending of "@@" at begin
 
     // Using a position variable for `fmt_buffer` to avoid `strlen()` calls
     unsigned int buffer_pos = 0;
 
     int j = 0;
-    for (int i = 0; i < SOURCE_BUFFER_SIZE - 1; i++) {
+    for (int i = 0; i < BIN_BUFFER_SIZE - 1; i++) {
         if (j == 8) {
             strcat(dest_buffer, "\t");
             buffer_pos += 1;
@@ -33,7 +33,7 @@ char* fmt_hexstring(
         buffer_pos += sprintf(
             dest_buffer + buffer_pos, 
             "%x\t", 
-            source_buffer[i]
+            binary_content[i]
         );
         j += 1;
     }
