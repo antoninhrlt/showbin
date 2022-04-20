@@ -2,7 +2,7 @@
 // Under the MIT License
 // Copyright (c) 2022 Antonin Hérault
 
-#include "hex.h"
+#include "fmt.h"
 
 #include <stdio.h>
 #include <string.h>

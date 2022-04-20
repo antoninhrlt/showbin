@@ -2,8 +2,8 @@
 // Under the MIT License
 // Copyright (c) 2022 Antonin Hérault
 
-#ifndef SHOWBIN_HEX_H
-#define SHOWBIN_HEX_H
+#ifndef SHOWBIN_FMT_H
+#define SHOWBIN_FMT_H
 
 /**
  * Format the binary file content buffer (array of hexadecimal characters)
@@ -15,4 +15,4 @@ char* fmt_hexstring(
     char source_buffer[SOURCE_BUFFER_SIZE]
 );
 
-#endif // SHOWBIN_HEX_H
+#endif // SHOWBIN_FMT_H
